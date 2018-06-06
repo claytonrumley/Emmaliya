@@ -24,6 +24,11 @@ Namespace Web
 
         Public ReadOnly Property CurrentUser As U
 
+        <ClientSide>
+        Public MustOverride ReadOnly Property Name As String
+
+        Public ReadOnly Property Plugins As New List(Of Plugin(Of U))
+
         ''' <summary>
         ''' Returns a list of paths to search for Javascript files when AutoDetectScripts is set to true
         ''' </summary>
@@ -69,6 +74,12 @@ Namespace Web
 
             _Current = Me
 
+            OnConfigurePlugins(Plugins)
+
+            For Each p As Plugin(Of U) In Plugins
+                p.OnBeforeDetectRoutes(RouteTable.Routes)
+            Next
+
             OnBeforeDetectRoutes(RouteTable.Routes)
 
             DetectRoutes()
@@ -76,6 +87,10 @@ Namespace Web
             OnAfterDetectRoutes(RouteTable.Routes)
 
             _CurrentUser = OnInitializeUser()
+
+            For Each p As Plugin(Of U) In Plugins
+                p.OnInitialize()
+            Next
 
             OnInitialize()
         End Sub
@@ -85,6 +100,10 @@ Namespace Web
         End Sub
 
         Protected Overridable Sub OnBeforeDetectRoutes(ByVal routes As RouteCollection)
+
+        End Sub
+
+        Protected Overridable Sub OnConfigurePlugins(plugins As List(Of Plugin(Of U)))
 
         End Sub
 

@@ -61,27 +61,52 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized string similar to /************************************************
+        '''    alert
+        '''    Generates a popup and display the passed message
+        '''************************************************/
+        '''emmaliya.fn.alert = function (message, options) {
+        '''    var popup = $(&apos;&lt;div&gt;&lt;div class=&quot;emma-popup&quot; title=&quot;&apos; + emmaliya.currentApplication.Name + &apos;&quot; data-emma-buttons=&quot;[{Text:\&apos;OK\&apos;, Action:\&apos;Cancel\&apos;}]&quot;&gt;&lt;div&gt;&lt;p class=&quot;emma-popup-message&quot;&gt;&lt;/p&gt;&lt;p class=&quot;emma-popup-stack-trace&quot;&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&apos;);
+        '''
+        '''    $(&apos;body&apos;).append(popup);
+        '''
+        '''    //mo [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property bootstrap4_emmaliya() As String
+            Get
+                Return ResourceManager.GetString("bootstrap4_emmaliya", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to body {
+        '''}
+        '''.
+        '''</summary>
+        Friend ReadOnly Property bootstrap4_emmaliya_css() As String
+            Get
+                Return ResourceManager.GetString("bootstrap4_emmaliya_css", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized string similar to var emmaliya = emmaliya || {};
         '''
-        '''(function (emmaliya, $) {
-        '''    emmaliya.async = {};
+        '''(function ($) {
+        '''    $.namespace = function (namespaceName, closures) {
         '''
-        '''    emmaliya.fn = {
-        '''        alert: function (msg) {
-        '''            alert(msg);
-        '''        },
+        '''        if ($.fn[namespaceName] === undefined) {
+        '''            $.fn[namespaceName] = function executor(context) {
+        '''                if (this instanceof executor) {
+        '''                    this.__context__ = context;
+        '''                }
+        '''                else {
+        '''                    return new executor(this);
+        '''                }
+        '''            };
+        '''        }
         '''
-        '''        confirm: function (text, options, onOk, onCancel) {
-        '''            if (confirm(text)) {
-        '''                onOk();
-        '''            } else {
-        '''                onCancel();
-        '''            }
-        '''        },
-        '''
-        '''        invokeAsync: function (invokePath, methodName, arguments, onSuccess, onFailure, onComplete) {
-        '''            jQuery.ajax({
-        ''' [rest of string was truncated]&quot;;.
+        '''        $.each(closures, function (closureName, clos [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property emmaliya() As String
             Get

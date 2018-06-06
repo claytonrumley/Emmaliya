@@ -90,11 +90,13 @@
     <Compile Include="Utilities\Extensions.vb" />
     <Compile Include="AccessAttribute.vb" />
     <Compile Include="Web\AddScriptAttribute.vb" />
+    <Compile Include="Web\AddStylesheetAttribute.vb" />
     <Compile Include="Web\Application.vb" />
     <Compile Include="Web\AsyncHelper.vb" />
     <Compile Include="Web\AsyncMethodAttribute.vb" />
     <Compile Include="Web\AsyncNameAttribute.vb" />
     <Compile Include="Web\ClientResource.vb" />
+    <Compile Include="Web\ClientSideAttribute.vb" />
     <Compile Include="Web\EmmaliyaScriptHandler.vb" />
     <Compile Include="Web\HttpHandlerRouteHandler.vb" />
     <Compile Include="Web\IdentityUser.vb" />
@@ -105,6 +107,9 @@
     <Compile Include="Web\Page.vb">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="Web\Plugin.vb" />
+    <Compile Include="Web\Plugins\Bootstrap4.vb" />
+    <Compile Include="Web\ResourceFileHandler.vb" />
     <Compile Include="Web\RouteAttribute.vb" />
     <Compile Include="Web\RouteHandler.vb" />
   </ItemGroup>
@@ -128,6 +133,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\bootstrap4.emmaliya.css" />
+    <Content Include="Resources\bootstrap4.emmaliya.js" />
     <Content Include="Resources\emmaliya.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />

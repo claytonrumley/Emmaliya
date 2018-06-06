@@ -1,6 +1,35 @@
 ﻿var emmaliya = emmaliya || {};
 
+(function ($) {
+    $.namespace = function (namespaceName, closures) {
+
+        if ($.fn[namespaceName] === undefined) {
+            $.fn[namespaceName] = function executor(context) {
+                if (this instanceof executor) {
+                    this.__context__ = context;
+                }
+                else {
+                    return new executor(this);
+                }
+            };
+        }
+
+        $.each(closures, function (closureName, closure) {
+            $.fn[namespaceName].prototype[closureName] = function () {
+                return closure.apply(this.__context__, arguments);
+            };
+        });
+
+    };
+})(jQuery);
+
 (function (emmaliya, $) {
+    $.namespace('emmaliya', {
+        enterKey: function (op) {
+            return $(this).keydown(function (e) { if (e.which == 13) { op(e); e.stopPropagation(); return !e.isDefaultPrevented(); } });
+        }
+    });
+
     emmaliya.async = {};
 
     emmaliya.fn = {
@@ -44,6 +73,8 @@
     emmaliya.currentPage = {};
 
     emmaliya.initialize = function (init_object) {
+
+        $(emmaliya).trigger('emma.initialize', init_object);
 
         /*******************************
          * data-emma-action

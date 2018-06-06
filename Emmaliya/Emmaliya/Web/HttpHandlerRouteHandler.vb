@@ -15,11 +15,39 @@ Namespace Web
         End Function
     End Class
 
+    Public Class HttpHandlerRouteHandler
+        Implements IRouteHandler
+
+        Public ReadOnly Property Handler As RouteHandler
+
+        Public Sub New(handler As RouteHandler)
+            _Handler = handler
+        End Sub
+
+        Public Function GetHttpHandler(ByVal requestContext As System.Web.Routing.RequestContext) As System.Web.IHttpHandler Implements System.Web.Routing.IRouteHandler.GetHttpHandler
+            Return _Handler
+        End Function
+    End Class
+
     Public Module HttpHandlerExtensions
         <Extension()>
         Public Sub MapHttpHandler(Of THandler As New)(ByVal routes As RouteCollection, ByVal url As String)
             routes.MapHttpHandler(Of THandler)(Nothing, url, Nothing, Nothing)
         End Sub
+
+        <Extension()>
+        Public Sub MapHttpHandler(ByVal routes As RouteCollection, ByVal url As String, handler As RouteHandler)
+            routes.MapHttpHandler(Nothing, url, handler, Nothing, Nothing)
+        End Sub
+
+        <Extension()>
+        Public Sub MapHttpHandler(ByVal routes As RouteCollection, ByVal name As String, ByVal url As String, handler As RouteHandler, ByVal defaults As Object, ByVal constraints As Object)
+            Dim route = New Route(url, New HttpHandlerRouteHandler(handler))
+            route.Defaults = New RouteValueDictionary(defaults)
+            route.Constraints = New RouteValueDictionary(constraints)
+            routes.Add(name, route)
+        End Sub
+
         '...
         <Extension()>
         Public Sub MapHttpHandler(Of THandler As New)(ByVal routes As RouteCollection, ByVal name As String, ByVal url As String, ByVal defaults As Object, ByVal constraints As Object)

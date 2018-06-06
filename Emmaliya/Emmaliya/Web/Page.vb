@@ -1,6 +1,8 @@
 ﻿Imports System.IO
+Imports System.Reflection
 Imports System.Text
 Imports System.Web
+Imports System.Web.Script.Serialization
 
 Namespace Web
     ''' <summary>
@@ -30,6 +32,39 @@ Namespace Web
                 Return CurrentApplication.CurrentUser
             End Get
         End Property
+#End Region
+
+#Region "AddEmmaliyaClientObjectInit"
+        Private Sub AddEmmaliyaClientObjectInit(clientName As String, o As Object)
+            Dim script As New StringBuilder
+            Dim js As New JavaScriptSerializer
+
+            script.Append(clientName)
+            script.Append(" = ")
+            script.Append(clientName)
+            script.Append(" || {}; ")
+
+            For Each pi As PropertyInfo In o.GetType().GetProperties
+                Dim cs As ClientSideAttribute = pi.GetCustomAttribute(Of ClientSideAttribute)()
+
+                If cs IsNot Nothing Then
+                    script.Append(clientName)
+                    script.Append(".")
+                    If pi.Name.Length = 1 Then
+                        script.Append(pi.Name.ToLower())
+                    Else
+                        script.Append(pi.Name.Substring(0, 1).ToLower() & pi.Name.Substring(1))
+                    End If
+                    script.Append(" = jQuery.parseJSON('")
+
+                    script.Append(js.Serialize(pi.GetValue(o)))
+
+                    script.Append("');")
+                End If
+            Next
+
+            AddScript(ClientResource.FromContents(script.ToString()))
+        End Sub
 #End Region
 
 #Region "AddEmmaliyaScriptTag"
@@ -144,6 +179,43 @@ Namespace Web
                 'Add Emmaliya.js tag:
                 AddEmmaliyaScriptTag()
 
+                'Add the Emmaliya object initializations:
+                AddEmmaliyaClientObjectInit("emmaliya.currentPage", Me)
+                AddEmmaliyaClientObjectInit("emmaliya.currentUser", CurrentUser)
+                AddEmmaliyaClientObjectInit("emmaliya.currentApplication", CurrentApplication)
+
+                'Go through the plugins and let them do whatever they need to do:
+                For Each p In CurrentApplication.Plugins
+                    p.OnPageLoad(Me)
+                Next
+
+                For Each sa As AddScriptAttribute In Me.GetType().GetCustomAttributes(Of AddScriptAttribute)()
+                    AddScript(ClientResource.FromUrl(sa.ScriptPath))
+                Next
+
+                For Each sa As AddStylesheetAttribute In Me.GetType().GetCustomAttributes(Of AddStylesheetAttribute)()
+                    AddStyle(ClientResource.FromUrl(sa.StylesheetPath))
+                Next
+
+                'Check and see if my master page hierarchy has asyncmethods or AddScript/AddStylesheet attributes:
+                Dim curr As MasterPage(Of U) = Master
+
+                While curr IsNot Nothing
+                    For Each sa As AddScriptAttribute In curr.GetType().GetCustomAttributes(Of AddScriptAttribute)()
+                        AddScript(ClientResource.FromUrl(sa.ScriptPath))
+                    Next
+
+                    For Each sa As AddStylesheetAttribute In curr.GetType().GetCustomAttributes(Of AddStylesheetAttribute)()
+                        AddStyle(ClientResource.FromUrl(sa.StylesheetPath))
+                    Next
+
+                    If AsyncNameAttribute.IsAsync(curr) Then
+                        AddScript(ClientResource.FromContents(AsyncHelper.ExtractAsyncMethods(curr, CurrentUser)))
+                    End If
+
+                    curr = curr.Master
+                End While
+
                 'Auto-detect a script with the same name as this page, if enabled:
                 If CurrentApplication.AutoDetectScripts AndAlso AutoDetectScript Then
                     For Each path As String In CurrentApplication.ScriptPaths
@@ -161,17 +233,6 @@ Namespace Web
                         End If
                     Next
                 End If
-
-                'Check and see if my master page hierarchy has asyncmethods:
-                Dim curr As MasterPage(Of U) = Master
-
-                While curr IsNot Nothing
-                    If AsyncNameAttribute.IsAsync(curr) Then
-                        AddScript(ClientResource.FromContents(AsyncHelper.ExtractAsyncMethods(curr, CurrentUser)))
-                    End If
-
-                    curr = curr.Master
-                End While
 
                 'Add my own extracted asynchronous methods:
                 AddScript(ClientResource.FromContents(AsyncHelper.ExtractAsyncMethods(Me, CurrentUser)))
